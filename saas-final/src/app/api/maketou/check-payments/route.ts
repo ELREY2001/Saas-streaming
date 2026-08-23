@@ -22,6 +22,7 @@ const pendingCarts: Map<string, {
   cartId: string;
   clientName: string;
   clientPhone: string;
+  clientEmail: string;
   service: string;
   accountId: string;
   adminId: string;
@@ -31,13 +32,14 @@ const pendingCarts: Map<string, {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { cartId, clientName, clientPhone, service, accountId, adminId } = body;
+    const { cartId, clientName, clientPhone, clientEmail, service, accountId, adminId } = body;
 
     // Enregistrer le panier en attente
     pendingCarts.set(cartId, {
       cartId,
       clientName,
       clientPhone,
+      clientEmail,
       service,
       accountId,
       adminId,
@@ -87,6 +89,7 @@ export async function GET(req: NextRequest) {
               adminId: admin.id,
               name: cartData.clientName,
               phone: cartData.clientPhone,
+              email: cartData.clientEmail,
               status: "active",
               notes: `Commande Maketou #${cartId}`,
             })

@@ -4,13 +4,21 @@ import { useState } from "react";
 
 export default function OrderPage() {
   const [step, setStep] = useState<"form" | "loading" | "redirect" | "error">("form");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = async () => {
-    if (!name.trim() || !phone.trim()) {
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !phone.trim()) {
       setError("Veuillez remplir tous les champs");
+      return;
+    }
+
+    // Valider le format de l'email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError("Adresse email invalide");
       return;
     }
 
@@ -24,12 +32,16 @@ export default function OrderPage() {
     setError("");
     setStep("loading");
 
+    const fullName = `${firstName.trim()} ${lastName.trim()}`;
+
     try {
       const res = await fetch("/api/maketou/create-cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: name.trim(),
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          email: email.trim(),
           phone: phoneClean,
           service: "netflix",
         }),
@@ -49,8 +61,9 @@ export default function OrderPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           cartId: data.cartId,
-          clientName: name.trim(),
+          clientName: fullName,
           clientPhone: phoneClean,
+          clientEmail: email.trim(),
           service: "netflix",
         }),
       });
@@ -126,18 +139,71 @@ export default function OrderPage() {
         {step === "form" && (
           <>
             {/* Formulaire */}
+            <div style={{ display: "flex", gap: "12px", marginBottom: "16px" }}>
+              <div style={{ flex: 1 }}>
+                <label style={{
+                  color: "rgba(255,255,255,0.7)",
+                  fontSize: "13px",
+                  display: "block",
+                  marginBottom: "8px",
+                }}>Nom *</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Ex: Dupont"
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    background: "rgba(255,255,255,0.08)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: "10px",
+                    color: "#fff",
+                    fontSize: "15px",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{
+                  color: "rgba(255,255,255,0.7)",
+                  fontSize: "13px",
+                  display: "block",
+                  marginBottom: "8px",
+                }}>Prénom *</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Ex: Jean"
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    background: "rgba(255,255,255,0.08)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: "10px",
+                    color: "#fff",
+                    fontSize: "15px",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+            </div>
+
             <div style={{ marginBottom: "16px" }}>
               <label style={{
                 color: "rgba(255,255,255,0.7)",
                 fontSize: "13px",
                 display: "block",
                 marginBottom: "8px",
-              }}>Votre prénom *</label>
+              }}>Adresse email *</label>
               <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Ex: Jean"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Ex: jean.dupont@gmail.com"
                 style={{
                   width: "100%",
                   padding: "12px 16px",
@@ -150,6 +216,11 @@ export default function OrderPage() {
                   boxSizing: "border-box",
                 }}
               />
+              <p style={{
+                color: "rgba(255,255,255,0.4)",
+                fontSize: "12px",
+                margin: "6px 0 0 0",
+              }}>Requis pour le paiement</p>
             </div>
 
             <div style={{ marginBottom: "24px" }}>

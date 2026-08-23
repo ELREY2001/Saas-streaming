@@ -10,11 +10,18 @@ const MAKETOU_PRODUCT_ID = process.env.MAKETOU_PRODUCT_ID!;
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, phone, service } = body;
+    const { firstName, lastName, email, phone, service } = body;
 
-    if (!name || !phone) {
+    if (!firstName || !lastName || !email || !phone) {
       return NextResponse.json(
-        { error: "Nom et numéro WhatsApp requis" },
+        { error: "Nom, prénom, email et numéro WhatsApp requis" },
+        { status: 400 }
+      );
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json(
+        { error: "Adresse email invalide" },
         { status: 400 }
       );
     }
@@ -50,13 +57,14 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           productDocumentId: MAKETOU_PRODUCT_ID,
           customer: {
-            firstName: name.trim().split(" ")[0],
-            lastName: name.trim().split(" ").slice(1).join(" ") || name.trim(),
-            email: `${phone.trim()}@client.com`,
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.trim(),
             phone: phone.trim(),
           },
           metadata: {
-            clientName: name.trim(),
+            clientName: `${firstName.trim()} ${lastName.trim()}`,
+            clientEmail: email.trim(),
             clientPhone: phone.trim(),
             service: service || "netflix",
             accountId: account.id,
