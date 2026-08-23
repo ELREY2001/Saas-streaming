@@ -27,4 +27,9 @@ if (process.env.NODE_ENV !== "production") {
   globalForDb.__accountflowPool = pool;
 }
 
-export const db = drizzle(pool);
+export const db = drizzle(pool, { logger: false });
+
+// Set search path to public schema
+pool.on("connect", (client) => {
+  client.query("SET search_path TO public");
+});
