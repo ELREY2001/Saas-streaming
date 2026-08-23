@@ -56,12 +56,10 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           productDocumentId: MAKETOU_PRODUCT_ID,
-          customer: {
-            firstName: firstName.trim(),
-            lastName: lastName.trim(),
-            email: email.trim(),
-            phone: phone.trim(),
-          },
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
           metadata: {
             clientName: `${firstName.trim()} ${lastName.trim()}`,
             clientEmail: email.trim(),
@@ -76,7 +74,7 @@ export async function POST(req: NextRequest) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Maketou error:", data);
+      console.error("Maketou error:", JSON.stringify(data, null, 2));
       return NextResponse.json(
         { error: "Erreur lors de la création du panier" },
         { status: 500 }
