@@ -10,7 +10,7 @@ import {
   admins,
 } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
-import { fillTemplate, DEFAULT_TEMPLATES, sendWhatsAppMessage } from "@/lib/whatsapp";
+import { fillTemplate, DEFAULT_TEMPLATES, sendViaApi } from "@/lib/whatsapp";
 import { formatDate, formatCurrency } from "@/lib/utils";
 
 const MAKETOU_API_URL = "https://api.maketou.net";
@@ -185,7 +185,7 @@ export async function GET(req: NextRequest) {
 
           // Envoyer via WhatsApp si configuré
           if (adminSettings?.whatsappApiKey && adminSettings?.whatsappPhoneNumber) {
-            await sendWhatsAppMessage(
+            await sendViaApi(
               adminSettings.whatsappApiKey,
               adminSettings.whatsappPhoneNumber,
               client.phone,
