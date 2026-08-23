@@ -84,21 +84,19 @@ export async function POST(req: NextRequest) {
     // Log complet de la réponse pour identifier la structure exacte renvoyée par Maketou
     console.log("Maketou success response:", JSON.stringify(data, null, 2));
 
-    // La réponse peut être imbriquée sous data.data ou data.cart selon l'API
-    const payload = data.data || data.cart || data;
-
-    const cartId = payload.id || payload.cartId || payload._id || payload.documentId;
+    // Structure Maketou observée: { cart: { id, status, customerInfo, ... }, redirectUrl }
+    const cartId = data.cart?.id || data.id || data.cartId || data._id;
     const checkoutUrl =
-      payload.checkoutUrl ||
-      payload.checkout_url ||
-      payload.url ||
-      payload.paymentUrl ||
-      payload.payment_url ||
-      payload.paymentLink ||
-      payload.payment_link ||
-      payload.redirectUrl ||
-      payload.redirect_url ||
-      payload.link;
+      data.redirectUrl ||
+      data.checkoutUrl ||
+      data.checkout_url ||
+      data.url ||
+      data.paymentUrl ||
+      data.payment_url ||
+      data.paymentLink ||
+      data.payment_link ||
+      data.redirect_url ||
+      data.link;
 
     if (!checkoutUrl) {
       console.error("Aucune URL de paiement trouvée dans la réponse Maketou:", JSON.stringify(data, null, 2));

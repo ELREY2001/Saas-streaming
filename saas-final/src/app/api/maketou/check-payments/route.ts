@@ -78,10 +78,19 @@ export async function GET(req: NextRequest) {
 
         if (!response.ok) continue;
 
-        const cart = await response.json();
+        const raw = await response.json();
+        // Gère à la fois { cart: { status, ... } } et { status, ... } directement
+        const cart = raw.cart || raw;
 
-        // Si le panier est payé
-        if (cart.status === "paid" || cart.paymentStatus === "paid") {
+        // Si le panier est payé (plusieurs libellés possibles selon Maketou/Paystral)
+        const paidStatuses = ["paid", "completed", "success", "confirmed", "succeeded"];
+        const status = (cart.status || cart.paymentStatus || "").toLowerCase();
+
+        console.log(`Cart ${cartId} status check:`, status, JSON.stringify(raw));
+
+        if (paidStatuses.includes(status)) {
+          const cartAmount = cart.amount ?? cart.total ?? cart.totalAmount ?? cart.price ?? 0;
+
           // Créer le client
           const [client] = await db
             .insert(clients)
@@ -125,7 +134,7 @@ export async function GET(req: NextRequest) {
               adminId: admin.id,
               startDate,
               expiresAt,
-              price: cart.amount?.toString() || "0",
+              price: cartAmount.toString(),
               currency: "XOF",
               paymentStatus: "paid",
               status: "active",
@@ -144,7 +153,7 @@ export async function GET(req: NextRequest) {
             subscriptionId: subscription.id,
             clientId: client.id,
             adminId: admin.id,
-            amount: cart.amount?.toString() || "0",
+            amount: cartAmount.toString(),
             currency: "XOF",
             status: "paid",
             method: "maketou",
@@ -168,7 +177,7 @@ export async function GET(req: NextRequest) {
             profileLine: "",
             profilePin: "",
             expiresAt: formatDate(expiresAt),
-            amount: formatCurrency(cart.amount || 0, "XOF"),
+            amount: formatCurrency(cartAmount, "XOF"),
           };
 
           const template =
