@@ -116,7 +116,7 @@ export default function OrderPage() {
           marginBottom: "28px",
         }}>
           <div style={{ color: "#e50914", fontSize: "32px", fontWeight: "800" }}>
-            2 000 FCFA
+            3 000 FCFA
           </div>
           <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", marginTop: "4px" }}>
             par mois · Paiement Mobile Money

@@ -50,7 +50,9 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           productDocumentId: MAKETOU_PRODUCT_ID,
           customer: {
-            name: name.trim(),
+            firstName: name.trim().split(" ")[0],
+            lastName: name.trim().split(" ").slice(1).join(" ") || name.trim(),
+            email: `${phone.trim()}@client.com`,
             phone: phone.trim(),
           },
           metadata: {
