@@ -81,9 +81,36 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Log complet de la réponse pour identifier la structure exacte renvoyée par Maketou
+    console.log("Maketou success response:", JSON.stringify(data, null, 2));
+
+    // La réponse peut être imbriquée sous data.data ou data.cart selon l'API
+    const payload = data.data || data.cart || data;
+
+    const cartId = payload.id || payload.cartId || payload._id || payload.documentId;
+    const checkoutUrl =
+      payload.checkoutUrl ||
+      payload.checkout_url ||
+      payload.url ||
+      payload.paymentUrl ||
+      payload.payment_url ||
+      payload.paymentLink ||
+      payload.payment_link ||
+      payload.redirectUrl ||
+      payload.redirect_url ||
+      payload.link;
+
+    if (!checkoutUrl) {
+      console.error("Aucune URL de paiement trouvée dans la réponse Maketou:", JSON.stringify(data, null, 2));
+      return NextResponse.json(
+        { error: "Réponse Maketou invalide (URL de paiement manquante)" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
-      cartId: data.id || data.cartId,
-      checkoutUrl: data.url || data.checkoutUrl,
+      cartId,
+      checkoutUrl,
     });
   } catch (err) {
     console.error("Create cart error:", err);

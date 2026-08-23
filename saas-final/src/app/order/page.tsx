@@ -55,6 +55,12 @@ export default function OrderPage() {
         return;
       }
 
+      if (!data.checkoutUrl) {
+        setError("Réponse invalide du service de paiement. Réessayez.");
+        setStep("form");
+        return;
+      }
+
       // Sauvegarder le cartId pour vérification future
       await fetch("/api/maketou/check-payments", {
         method: "POST",
